@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 public class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
 
@@ -25,7 +26,7 @@ public class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
                 capture.write(b);
             }
         };
-        this.writer = new PrintWriter(capture);
+        this.writer = new PrintWriter(capture, true, StandardCharsets.UTF_8);
     }
 
     @Override

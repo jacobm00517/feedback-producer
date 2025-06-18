@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
 
@@ -30,10 +31,10 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public BufferedReader getReader() {
-        return new BufferedReader(new InputStreamReader(getInputStream()));
+        return new BufferedReader(new InputStreamReader(getInputStream(), StandardCharsets.UTF_8));
     }
 
     public String getBodyAsString() {
-        return new String(this.cachedBody);
+        return new String(this.cachedBody, StandardCharsets.UTF_8);
     }
 }
