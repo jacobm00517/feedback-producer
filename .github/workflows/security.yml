@@ -17,15 +17,20 @@ jobs:
           java-version: '21'
 
       - name: Build project (skip tests)
-        run: mvn clean package -DskipTests
+        run: mvn -B clean package -DskipTests
 
-      - name: Run SpotBugs
-        run: mvn spotbugs:check
-        continue-on-error: true # Do not fail pipeline on findings
+      - name: Run SpotBugs (create HTML + XML)
+        run: |
+          mvn -B spotbugs:spotbugs \
+              -Dspotbugs.htmlOutput=true \
+              -Dspotbugs.xmlOutput=true \
+              -Dspotbugs.failOnError=false
 
-      - name: Upload SpotBugs report
+      - name: Upload SpotBugs reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: spotbugs-report
-          path: target/spotbugsXml.xml
+          path: |
+            target/spotbugs.html
+            target/spotbugsXml.xml
