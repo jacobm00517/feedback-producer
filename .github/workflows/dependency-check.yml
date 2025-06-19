@@ -1,4 +1,4 @@
-name: OWASP Dependency-Check
+name: OWASP Dependency-Check CLI
 
 on:
   push:
@@ -9,23 +9,33 @@ on:
 jobs:
   dependency-check:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download OWASP Dependency Check
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Download OWASP Dependency-Check
         run: |
           VERSION=$(curl -s https://jeremylong.github.io/DependencyCheck/current.txt)
-          curl -sL "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" --output dependency-check.zip
-          unzip dependency-check.zip
+          echo "Using Dependency-Check version $VERSION"
+          curl -sL "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" -o dependency-check.zip
+          unzip dependency-check.zip -d dependency-check
 
-      - name: Run Dependency Check
+      - name: Run OWASP Dependency-Check CLI
         run: |
-          ./dependency-check/bin/dependency-check.sh --out dependency-check-report --scan . --format HTML --failOnCVSS 11 --nvdApiKey "${{ secrets.NVD_API_KEY }}"
+          ./dependency-check/bin/dependency-check.sh \
+            --format HTML \
+            --project "Feedback Producer" \
+            --out dependency-check-report \
+            --scan .
 
-      - name: Upload OWASP Report
+      - name: Upload Dependency-Check Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: dependency-check-report/dependency-check-report.html
+          path: dependency-check-report/dependency-check-report.htm
