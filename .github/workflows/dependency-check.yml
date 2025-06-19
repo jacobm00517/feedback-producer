@@ -22,7 +22,7 @@ jobs:
       - name: Download Dependency-Check CLI
         run: |
           VERSION=$(curl -s https://dependency-check.github.io/DependencyCheck/current.txt)
-          curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" --output dependency-check.zip
+          curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" --output dc.zip
           unzip dc.zip -d dependency-check
 
       - name: Run OWASP Dependency-Check
