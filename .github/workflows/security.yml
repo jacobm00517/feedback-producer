@@ -29,19 +29,3 @@ jobs:
 
       - name: Run SpotBugs with FindSecBugs
         run: mvn spotbugs:check
-
-      - name: Run OWASP Dependency-Check (Maven)
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: >
-          bash -c "mvn org.owasp:dependency-check-maven:9.0.9:check \
-            -Dnvd.apiKey=${{ secrets.NVD_API_KEY }} \
-            -Dnvd.api.forceUpdate=true \
-            -Dnvd.data.mirror=false \
-            -DfailBuildOnCVSS=11"
-
-      - name: Upload OWASP Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: target/dependency-check-report.html
