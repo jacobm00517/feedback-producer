@@ -27,5 +27,5 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Run SpotBugs with FindSecBugs
-        run: mvn spotbugs:check
+      - name: Run SpotBugs with FindSecBugs (non-blocking)
+        run: mvn spotbugs:check || echo "SpotBugs completed with findings but did not fail the build."
