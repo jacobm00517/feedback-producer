@@ -1,17 +1,13 @@
-name: Security Scan
+name: SpotBugs Static Analysis
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  security-analysis:
+  spotbugs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java
@@ -20,12 +16,16 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
+      - name: Build project (skip tests)
+        run: mvn clean package -DskipTests
 
-      - name: Run SpotBugs with FindSecBugs (non-blocking)
-        run: mvn spotbugs:check || echo "SpotBugs completed with findings but did not fail the build."
+      - name: Run SpotBugs
+        run: mvn spotbugs:check
+        continue-on-error: true # Do not fail pipeline on findings
+
+      - name: Upload SpotBugs report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: target/spotbugsXml.xml

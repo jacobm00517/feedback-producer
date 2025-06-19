@@ -1,29 +1,43 @@
-name: OWASP Dependency-Check (CLI)
+name: OWASP Dependency-Check
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  dependency-check:
+  owasp-dep-check:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Dependency-Check CLI
-        run: |
-          curl -sLO https://github.com/dependency-check/dependency-check/releases/download/v12.1.1/dependency-check-12.1.1-release.zip
-          unzip dependency-check-12.1.1-release.zip -d dependency-check
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
-      - name: Run Dependency-Check CLI
-        run: |
-          ./dependency-check/bin/dependency-check.sh --format HTML --project "Producer Service" --scan . --out reports/
+      - name: Build project (skip tests)
+        run: mvn clean package -DskipTests
 
-      - name: Upload HTML Report
+      - name: Download Dependency-Check CLI
+        run: |
+          VERSION=$(curl -s https://dependency-check.github.io/DependencyCheck/current.txt)
+          curl -Ls "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" --output dc.zip
+          unzip dc.zip -d dependency-check
+
+      - name: Run OWASP Dependency-Check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          ./dependency-check/dependency-check/bin/dependency-check.sh \
+            --project "Producer Microservice" \
+            --format "HTML" \
+            --scan . \
+            --out reports \
+            --nvdApiKey $NVD_API_KEY
+
+      - name: Upload OWASP report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
