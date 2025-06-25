@@ -9,7 +9,10 @@ RUN ./mvnw -q --batch-mode package -DskipTests
 
 # ---------- runtime ----------
 FROM eclipse-temurin:17-jre
-RUN addgroup -S spring && adduser -S spring -G spring
+
+# Create an unprivileged user in Debian/Ubuntu style
+RUN groupadd -r spring && useradd -r -g spring spring
+
 USER spring:spring
 WORKDIR /app
 COPY --from=builder /workspace/target/*.jar app.jar
