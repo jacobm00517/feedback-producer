@@ -9,4 +9,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info, health/liveness
+  endpoint:
+    health:
+      group:
+        liveness:
+          include: livenessState
