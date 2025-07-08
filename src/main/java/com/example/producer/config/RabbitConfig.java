@@ -19,6 +19,6 @@ public class RabbitConfig {
 
     @Bean
     public Queue feedbackQueue() {
-        return new Queue("feedback.queue", false); // not durable for now
+        return new Queue("feedback.queue", true);
     }
 }
